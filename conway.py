@@ -35,10 +35,14 @@ def drawPixelOnGrid(xPos,yPos,turnOn):
     global state
     offsetX = 2*xPos
     offsetY = 2*yPos
+
+    xCorrect = (offsetX) % 64
+    yCorrect = (offsetY) % 64
+
     state[xPos][yPos] = turnOn
     for x in range(2):
         for y in range(2):
-            canvas.SetPixel(offsetX+x,offsetY+y,255*turnOn,255*turnOn,255*turnOn)
+            canvas.SetPixel(xCorrect+x,yCorrect+y,255*turnOn,255*turnOn,255*turnOn)
 
 def kernel(xPos,yPos):
     count = 0
@@ -47,9 +51,11 @@ def kernel(xPos,yPos):
             if (x == 0 and y == 0 ):
                 continue # don't count yourself as a neigbor
             try:
-                if state[xPos+x][yPos+y]:
+                xCorrect = (xPos+x) % 64
+                yCorrect = (yPos+y) % 64
+                # print(xCorrect,yCorrect)
+                if state[xCorrect][yCorrect]:
                     count += 1
-                    # print('neighbor @',xPos+x,yPos+y)
             except:
                 count += 0
     return count
@@ -61,9 +67,9 @@ def runKernel():
         for y in range(32):
             neighbors = kernel(x,y) 
             if neighbors < 2 or neighbors > 3:
-                toDie.append([x,y])
+                toDie.append([x%64,y%64])
             elif neighbors == 3:
-                toBorn.append([x,y])
+                toBorn.append([x%64,y%64])
                 # drawPixelOnGrid(x,y,True)
 
     # print(toDie)
@@ -137,8 +143,8 @@ def drawGliderAt(xPos,yPos):
 
 
 drawGliderAt(10,5)
-drawGliderAt(15,10)
-drawGliderAt(5,15)
+# drawGliderAt(15,10)
+# drawGliderAt(5,15)
 
 # for x in range(8):
 #     for y in range(8):
@@ -159,10 +165,10 @@ try:
     while True:
         gen+=1
         runKernel()
-        if countAlive() < 10 or gen > 350:
-            randomFill(.5)
+        # if countAlive() < 10 or gen > 350:
+        #     randomFill(.5)
             # exit(0)
-        time.sleep(.1)
+        time.sleep(.01)
         print(gen)
 except KeyboardInterrupt:
     sys.exit(0)
